@@ -17,7 +17,7 @@ import java.util.List;
 
 public class TileEntityWorkbench extends TileEntity implements ITickable {
     public NonNullList<ItemStack> craftMatrix;
-    private NonNullList<ItemStack> oldMatrix;
+    private List<ItemStack> oldMatrix;
     @Nullable
     private ContainerWorkbench container;
 
@@ -80,7 +80,8 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             capacity = nbt.getInteger("Capacity");
         }
 
-        oldMatrix = craftMatrix;
+        updateOldMatrix();
+
         ensureCraftMatrixCapacity(capacity);
 
         for (int i = 0; i < 9; ++i) {
@@ -91,17 +92,23 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             }
         }
 
-        // Check if matrix changed, if changed, then call onChanged
         if (!hasMatrixChanged(oldMatrix, craftMatrix)) return;
-        if (container != null) ((TileContainerWorkbench) container).updateResult();
         markDirty();
     }
 
-    public boolean hasMatrixChanged(NonNullList<ItemStack> oldMatrix, NonNullList<ItemStack> newMatrix) {
+    public boolean hasMatrixChanged(List<ItemStack> oldMatrix, List<ItemStack> newMatrix) {
         if (oldMatrix.size() != newMatrix.size()) return true;
         for (int i = 0; i < oldMatrix.size(); i++)
-            if (!oldMatrix.get(i).equals(newMatrix.get(i))) return true;
+            if (!oldMatrix.get(i).getItem().equals(newMatrix.get(i).getItem()) || oldMatrix.get(i).getMetadata() != newMatrix.get(i).getMetadata())
+                return true;
         return false;
+    }
+
+    public boolean matrixEmpty(List<ItemStack> matrix) {
+        for (var stack : matrix) {
+            if (stack.isEmpty()) return false;
+        }
+        return true;
     }
 
     public void readFromNBT(@NotNull NBTTagCompound nbt) {
@@ -146,13 +153,30 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
 
     @Override
     public void update() {
+        if (matrixEmpty(craftMatrix)) {
+            if (container != null && !container.craftResult.isEmpty()) {
+                container.craftResult.clear();
+                updateOldMatrix();
+                markDirty();
+                return;
+            }
+            if (!matrixEmpty(oldMatrix)) markDirty();
+            return;
+        }
         if (hasMatrixChanged(oldMatrix, craftMatrix) || (container != null && ((InventoryWorkbench) container.craftMatrix).needsUpdate())) {
             if (container != null) {
                 ((TileContainerWorkbench) container).updateResult();
                 ((InventoryWorkbench) container.craftMatrix).setNoUpdate();
+                updateOldMatrix();
             }
-            oldMatrix = craftMatrix;
             markDirty();
+        }
+    }
+
+    public void updateOldMatrix() {
+        oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
+        for (int i = 0; i < craftMatrix.size(); i++) {
+            oldMatrix.set(i, craftMatrix.get(i).copy());
         }
     }
 }
