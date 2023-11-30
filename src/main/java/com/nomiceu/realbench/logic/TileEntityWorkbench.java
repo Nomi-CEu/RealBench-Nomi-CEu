@@ -32,6 +32,11 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
         return this;
     }
 
+    @Nullable
+    public ContainerWorkbench getContainer() {
+        return container;
+    }
+
     @Override
     public void markDirty() {
         super.markDirty();
