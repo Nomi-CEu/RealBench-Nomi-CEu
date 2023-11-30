@@ -6,6 +6,7 @@ import java.util.WeakHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.Item;
@@ -14,6 +15,9 @@ import net.minecraft.item.ItemBlockSpecial;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This renderer code is from RealBench, but is cleaned up and slightly modified.
+ */
 public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkbench> {
     Map<TileEntityWorkbench, RenderingState> states = new WeakHashMap<>();
     static final int ANIMATION_DURATION = 1000;
@@ -28,6 +32,7 @@ public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkb
         for (int i = 0; i < tile.getCraftMatrixSafe().size(); i++) {
             ItemStack itemStack = tile.getCraftMatrixSafe().get(i);
             if (!itemStack.isEmpty()) {
+                GlStateManager.disableLighting();
                 RenderingState state = states.computeIfAbsent(tile, (k) -> new RenderingState());
                 double playerAngle = (Math.atan2(xOffset + 0.5, zOffset + 0.5) + 3.9269908169872414) % 6.283185307179586;
                 byte sector = (byte) ((playerAngle * 2.0 / Math.PI));
@@ -83,9 +88,14 @@ public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkb
                     GlStateManager.rotate(-rendererDispatcher.entityPitch, 1.0F, 0.0F, 0.0F);
                 }
 
-                GlStateManager.scale(0.125F, 0.125F, 0.125F);
-                Minecraft.getMinecraft().getRenderItem().renderItem(itemStack, TransformType.NONE);
+                GlStateManager.scale(0.25F, 0.25F, 0.25F);
+                GlStateManager.pushAttrib();
+                RenderHelper.enableStandardItemLighting();
+                Minecraft.getMinecraft().getRenderItem().renderItem(itemStack, TransformType.FIXED);
+                RenderHelper.disableStandardItemLighting();
+                GlStateManager.popAttrib();
                 GlStateManager.popMatrix();
+                GlStateManager.enableLighting();
             }
         }
 
