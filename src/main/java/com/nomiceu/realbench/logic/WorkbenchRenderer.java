@@ -6,17 +6,19 @@ import java.util.WeakHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBlockSpecial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This renderer code is from RealBench, but is cleaned up and slightly modified.
+ * This renderer code is from RealBench, but is cleaned up and slightly modified. Instead of making workbenches an opaque block, uses lighting hacks from GTCEu instead.
  */
 public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkbench> {
     Map<TileEntityWorkbench, RenderingState> states = new WeakHashMap<>();
@@ -89,11 +91,12 @@ public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkb
                 }
 
                 GlStateManager.scale(0.25F, 0.25F, 0.25F);
-                GlStateManager.pushAttrib();
-                RenderHelper.enableStandardItemLighting();
+
+                float lastBrightnessX = OpenGlHelper.lastBrightnessX;
+                float lastBrightnessY = OpenGlHelper.lastBrightnessY;
+                setLightingToPos(tile.getWorld(), tile.getPos().up());
                 Minecraft.getMinecraft().getRenderItem().renderItem(itemStack, TransformType.FIXED);
-                RenderHelper.disableStandardItemLighting();
-                GlStateManager.popAttrib();
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
                 GlStateManager.popMatrix();
                 GlStateManager.enableLighting();
             }
@@ -116,5 +119,17 @@ public class WorkbenchRenderer extends TileEntitySpecialRenderer<TileEntityWorkb
 
         RenderingState() {
         }
+    }
+
+    /**
+     * From GregTech CEu: <a href="https://github.com/GregTechCEu/GregTech/blob/master/src/main/java/gregtech/client/renderer/texture/custom/QuantumStorageRenderer.java#L175-L182">...</a>
+     */
+    public static void setLightingToPos(IBlockAccess world, BlockPos pos) {
+        // Evil bit hackery from net.minecraft.client.renderer.ItemRenderer to actually get the right light coords
+        // This makes about as much sense as the fast inverse square root algorithm
+        int actualLight = world.getCombinedLight(pos, 0);
+        float lightmapXCoord = actualLight & 65535;
+        float lightmapYCoord = actualLight >> 16;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapXCoord, lightmapYCoord);
     }
 }
