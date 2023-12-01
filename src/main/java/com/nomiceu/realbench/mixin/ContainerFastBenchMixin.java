@@ -4,52 +4,58 @@ import com.nomiceu.realbench.logic.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.*;
+import net.minecraft.inventory.ContainerWorkbench;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import shadows.fastbench.gui.ContainerFastBench;
+import shadows.fastbench.gui.SlotCraftingSucks;
 
 import java.util.List;
 
-@Mixin(value = ContainerWorkbench.class)
-public abstract class ContainerWorkbenchMixin extends Container implements TileContainerWorkbench {
-    @Shadow
-    public InventoryCrafting craftMatrix;
-    @Shadow
-    public InventoryCraftResult craftResult;
-    @Shadow @Final
-    private World world;
-    @Shadow @Final
-    private EntityPlayer player;
+@Mixin(value = ContainerFastBench.class, remap = false)
+public class ContainerFastBenchMixin extends ContainerWorkbench implements TileContainerWorkbench {
+    /**
+     * Mandatory ignored constructor
+     */
+    public ContainerFastBenchMixin(InventoryPlayer playerInventory, World worldIn, BlockPos posIn) {
+        super(playerInventory, worldIn, posIn);
+    }
+
     @Unique
     public TileEntityWorkbench tile;
     @Unique
     public Slot result;
     @Unique
     public List<ItemStack> oldMatrix;
+    @Unique
+    private World world;
+    @Unique
+    private EntityPlayer player;
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/player/InventoryPlayer;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", at = @At(value = "RETURN"))
-    public void init(InventoryPlayer playerInventory, World worldIn, BlockPos posIn, CallbackInfo ci) {
-        tile = ContainerWorkbenchLogic.getTile((ContainerWorkbench) (Object) this, worldIn, posIn);
+    @Inject(method = "<init>*", at = @At(value = "RETURN"))
+    public void init(EntityPlayer player, World world, BlockPos pos, CallbackInfo ci) {
+        tile = ContainerWorkbenchLogic.getTile(this, world, pos);
+        this.world = world;
+        this.player = player;
 
         oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
 
-        ContainerWorkbenchLogic.init((ContainerWorkbench) (Object) this, playerInventory.player, (container, playerIn) ->
-                result = addSlotToContainer(new SlotCraftingResult(playerIn,
-                        container, craftMatrix, craftResult, 0, 124, 35)));
+        ContainerWorkbenchLogic.init(this, player, (container, playerIn) ->
+                result = addSlot(new SlotCraftingSucks((ContainerFastBench) container,
+                        playerIn, craftMatrix, craftResult, 0, 124, 35)));
     }
 
-    @Inject(method = "onContainerClosed(Lnet/minecraft/entity/player/EntityPlayer;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onContainerClosed", at = @At("HEAD"), cancellable = true)
     public void onContainerClosed(EntityPlayer player, CallbackInfo ci) {
         super.onContainerClosed(player);
         ci.cancel();

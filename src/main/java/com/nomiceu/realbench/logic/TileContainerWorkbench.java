@@ -1,5 +1,6 @@
 package com.nomiceu.realbench.logic;
 
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface TileContainerWorkbench {
     void updateOldMatrix(List<ItemStack> matrix);
 
     void clearResult();
+
+    Slot addSlot(Slot slot);
 }
