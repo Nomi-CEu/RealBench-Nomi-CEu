@@ -16,5 +16,5 @@ public interface TileContainerWorkbench {
 
     void clearResult();
 
-    Slot addSlot(Slot slot);
+    void addSlot(Slot slot);
 }

@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 public class ContainerWorkbenchLogic {
     public static void init(ContainerWorkbench container, EntityPlayer player, BiConsumer<ContainerWorkbench, EntityPlayer> addResultSlot) {
         // Clear all buttons and restart
-        container.craftMatrix = new InventoryWorkbench(container,3, 3);
+        container.craftMatrix = new InventoryWorkbench(container, 3, 3);
         container.inventorySlots = NonNullList.create();
         container.inventoryItemStacks = NonNullList.create();
 

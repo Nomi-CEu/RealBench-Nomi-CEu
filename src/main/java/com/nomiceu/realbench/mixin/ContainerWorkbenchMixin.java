@@ -10,6 +10,7 @@ import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,8 +35,6 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     @Unique
     public TileEntityWorkbench tile;
     @Unique
-    public Slot result;
-    @Unique
     public List<ItemStack> oldMatrix;
 
     @Inject(method = "<init>(Lnet/minecraft/entity/player/InventoryPlayer;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", at = @At(value = "RETURN"))
@@ -45,7 +44,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
         oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
 
         ContainerWorkbenchLogic.init((ContainerWorkbench) (Object) this, playerInventory.player, (container, playerIn) ->
-                result = addSlotToContainer(new SlotCraftingResult(playerIn,
+                addSlotToContainer(new SlotCraftingResult(playerIn,
                         container, craftMatrix, craftResult, 0, 124, 35)));
     }
 
@@ -87,11 +86,12 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     public void clearResult() {
         craftResult.clear();
         ((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, ItemStack.EMPTY));
+        LogManager.getLogger().info("clearing container of player " + player.getDisplayNameString());
     }
 
     @Override
     @Unique
-    public Slot addSlot(Slot slot) {
-        return addSlotToContainer(slot);
+    public void addSlot(Slot slot) {
+        addSlotToContainer(slot);
     }
 }

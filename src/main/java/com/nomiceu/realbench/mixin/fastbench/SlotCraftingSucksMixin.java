@@ -23,7 +23,8 @@ public class SlotCraftingSucksMixin {
         this.container = container;
     }
 
-    @Inject(method = "onTake", at = @At("RETURN"))
+    // Must be method reference + remap as this is overriding mc function
+    @Inject(method = "onTake(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;", at = @At("RETURN"), remap = true)
     public void onTake(EntityPlayer player, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         var tile = ((TileContainerWorkbench) container).getTile();
         tile.craft();
