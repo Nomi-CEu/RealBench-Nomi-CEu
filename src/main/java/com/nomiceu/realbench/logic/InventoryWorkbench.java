@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 
 public class InventoryWorkbench extends InventoryCrafting {
     private final ContainerWorkbench container;
-    private TileEntityWorkbench tile;
+    private final TileEntityWorkbench tile;
     private final int width, height;
 
     private boolean needsUpdate = true;
@@ -23,12 +23,8 @@ public class InventoryWorkbench extends InventoryCrafting {
         this.container = container;
         this.width = width;
         this.height = height;
-        init(width * height);
-    }
-
-    private void init(int capacity) {
         tile = ((TileContainerWorkbench) container).getTile();
-        tile.ensureCraftMatrixCapacity(capacity);
+        tile.ensureCraftMatrixCapacity(width * height);
     }
 
     @Override

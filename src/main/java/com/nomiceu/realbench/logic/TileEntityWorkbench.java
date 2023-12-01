@@ -13,28 +13,28 @@ import net.minecraft.world.WorldServer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TileEntityWorkbench extends TileEntity implements ITickable {
     public NonNullList<ItemStack> craftMatrix;
-    private List<ItemStack> oldMatrix;
-    @Nullable
-    private ContainerWorkbench container;
+    private final List<ContainerWorkbench> containers;
+    private boolean needsClear;
 
     public TileEntityWorkbench() {
         craftMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
-        oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
-        container = null;
+        containers = new ArrayList<>();
+        needsClear = false;
     }
 
-    public TileEntityWorkbench setContainer(@NotNull ContainerWorkbench container) {
-        this.container = container;
+    public TileEntityWorkbench addContainer(@NotNull ContainerWorkbench container) {
+        containers.add(container);
         return this;
     }
 
     @Nullable
     public ContainerWorkbench getContainer() {
-        return container;
+        return containers.get(0);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
         nbt.setInteger("Capacity", craftMatrix.size());
 
         for (int i = 0; i < 9; ++i) {
-            if (craftMatrix.get(i) == ItemStack.EMPTY) {
+            if (craftMatrix.get(i).isEmpty()) {
                 nbt.removeTag("Slot" + i);
             } else {
                 NBTTagCompound slot = new NBTTagCompound();
@@ -80,8 +80,6 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             capacity = nbt.getInteger("Capacity");
         }
 
-        updateOldMatrix();
-
         ensureCraftMatrixCapacity(capacity);
 
         for (int i = 0; i < 9; ++i) {
@@ -91,24 +89,14 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
                 craftMatrix.set(i, new ItemStack(nbt.getCompoundTag("Slot" + i)));
             }
         }
-
-        if (!hasMatrixChanged(oldMatrix, craftMatrix)) return;
-        markDirty();
     }
 
     public boolean hasMatrixChanged(List<ItemStack> oldMatrix, List<ItemStack> newMatrix) {
         if (oldMatrix.size() != newMatrix.size()) return true;
         for (int i = 0; i < oldMatrix.size(); i++)
-            if (!oldMatrix.get(i).getItem().equals(newMatrix.get(i).getItem()) || oldMatrix.get(i).getMetadata() != newMatrix.get(i).getMetadata())
+            if (!ItemStack.areItemStacksEqual(oldMatrix.get(i), newMatrix.get(i)))
                 return true;
         return false;
-    }
-
-    public boolean matrixEmpty(List<ItemStack> matrix) {
-        for (var stack : matrix) {
-            if (stack.isEmpty()) return false;
-        }
-        return true;
     }
 
     public void readFromNBT(@NotNull NBTTagCompound nbt) {
@@ -148,35 +136,54 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
     public void ensureCraftMatrixCapacity(int capacity) {
         if (craftMatrix.size() != capacity) {
             craftMatrix = NonNullList.withSize(capacity, ItemStack.EMPTY);
+            updateAllOldMatrix();
+        }
+    }
+
+    public void updateAllOldMatrix() {
+        for (var container : containers) {
+            if (container == null) {
+                containers.remove(null);
+                continue;
+            }
+            ((TileContainerWorkbench) container).updateOldMatrix(craftMatrix);
         }
     }
 
     @Override
     public void update() {
-        if (matrixEmpty(craftMatrix)) {
-            if (container != null && !container.craftResult.isEmpty()) {
-                container.craftResult.clear();
-                updateOldMatrix();
-                markDirty();
-                return;
+        boolean anyChange = false;
+        if (needsClear) craft();
+        for (var container : containers) {
+            var tileContainer = (TileContainerWorkbench) container;
+            if (container == null) {
+                containers.remove(null);
+                continue;
             }
-            if (!matrixEmpty(oldMatrix)) markDirty();
-            return;
+
+            if (!hasMatrixChanged(tileContainer.getOldMatrix(), craftMatrix) &&
+                    !((InventoryWorkbench) container.craftMatrix).needsUpdate()) continue;
+
+            tileContainer.updateResult();
+            anyChange = true;
+            ((InventoryWorkbench) container.craftMatrix).setNoUpdate();
         }
-        if (hasMatrixChanged(oldMatrix, craftMatrix) || (container != null && ((InventoryWorkbench) container.craftMatrix).needsUpdate())) {
-            if (container != null) {
-                ((TileContainerWorkbench) container).updateResult();
-                ((InventoryWorkbench) container.craftMatrix).setNoUpdate();
-                updateOldMatrix();
-            }
-            markDirty();
-        }
+        if (anyChange) markDirty();
     }
 
-    public void updateOldMatrix() {
-        oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
-        for (int i = 0; i < craftMatrix.size(); i++) {
-            oldMatrix.set(i, craftMatrix.get(i).copy());
+    public void craft() {
+        markDirty();
+        if (world.isRemote) {
+            needsClear = true;
+            return;
+        }
+        for (var container : containers) {
+            if (container == null) {
+                containers.remove(null);
+                continue;
+            }
+
+            ((TileContainerWorkbench) container).clearResult();
         }
     }
 }
