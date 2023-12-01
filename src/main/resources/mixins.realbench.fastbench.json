@@ -1,5 +1,5 @@
 {
-  "package": "com.nomiceu.realbench.mixin",
+  "package": "com.nomiceu.realbench.mixin.fastbench",
   "refmap": "mixins.realbench.refmap.json",
   "target": "@env(DEFAULT)",
   "minVersion": "0.8",

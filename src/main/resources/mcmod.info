@@ -1,7 +1,7 @@
 [{
     "modid": "${modid}",
     "name": "${modname}",
-    "description": "An example mod for Minecraft 1.12.2 with Forge",
+    "description": "A rewrite of RealBench, fixing many glitches and bugs!",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "logoFile": "",

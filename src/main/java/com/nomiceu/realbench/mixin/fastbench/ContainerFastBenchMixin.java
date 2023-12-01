@@ -1,4 +1,4 @@
-package com.nomiceu.realbench.mixin;
+package com.nomiceu.realbench.mixin.fastbench;
 
 import com.nomiceu.realbench.logic.*;
 import net.minecraft.entity.player.EntityPlayer;
