@@ -46,8 +46,10 @@ public class BlockWorkbenchMixin extends Block implements ITileEntityProvider {
         TileEntity tileentity = world.getTileEntity(pos);
 
         if (tileentity instanceof TileEntityWorkbench workbench) {
-            if (workbench.getContainer() != null)
-                InventoryHelper.dropInventoryItems(world, pos, workbench.getContainer().craftMatrix);
+            for (var stack : workbench.craftMatrix) {
+                if (!stack.isEmpty())
+                    InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
         }
 
         super.breakBlock(world, pos, state);
