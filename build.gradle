@@ -1,4 +1,4 @@
-//version: 1701395455
+//version: 1701481996
 /*
  * DO NOT CHANGE THIS FILE!
  * Also, you may replace this file at any time if there is an update available.
@@ -220,7 +220,7 @@ if (enableSpotless.toBoolean()) {
             removeUnusedImports()
             endWithNewline()
             //noinspection GroovyAssignabilityCheck
-            eclipse('4.19').configFile(formatFile)
+            eclipse('4.19.0').configFile(formatFile)
         }
         scala {
             target 'src/*/scala/**/*.scala'
