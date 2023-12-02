@@ -4,9 +4,9 @@
     "description": "A rewrite of RealBench, fixing many glitches and bugs!",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "logoFile": "",
-    "url": "",
-    "authorList": [],
-    "credits": "",
+    "logoFile": "assets/realbench/textures/icon.png",
+    "url": "https://www.curseforge.com/minecraft/mc-mods/realbench-nomi-ceu",
+    "authorList": ["IntegerLimit", "Prototik"],
+    "credits": "Prototik for the RealBench mod, which contained the original idea, the basis for this mod, and the code for the rendering engine. The GregTech CEu Team for the lighting adjustments in the rendering engine.",
     "dependencies": []
 }]
