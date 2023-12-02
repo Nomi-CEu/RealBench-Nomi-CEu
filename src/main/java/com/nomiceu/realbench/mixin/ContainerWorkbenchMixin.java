@@ -10,7 +10,6 @@ import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -86,7 +85,6 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     public void clearResult() {
         craftResult.clear();
         ((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, ItemStack.EMPTY));
-        LogManager.getLogger().info("clearing container of player " + player.getDisplayNameString());
     }
 
     @Override
