@@ -1,6 +1,7 @@
 package com.nomiceu.realbench.logic;
 
 import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,28 +14,28 @@ import net.minecraft.world.WorldServer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TileEntityWorkbench extends TileEntity implements ITickable {
     public NonNullList<ItemStack> craftMatrix;
-    private final List<ContainerWorkbench> containers;
+    private final Set<ContainerWorkbench> containers;
     private boolean needsClear;
+    private boolean needsUpdate;
 
     public TileEntityWorkbench() {
         craftMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
-        containers = new ArrayList<>();
+        containers = new ObjectOpenHashSet<>();
         needsClear = false;
     }
 
     public TileEntityWorkbench addContainer(@NotNull ContainerWorkbench container) {
         containers.add(container);
+        needsUpdate = true;
         return this;
     }
 
-    @Nullable
-    public ContainerWorkbench getContainer() {
-        return containers.get(0);
+    public void removeContainer(@NotNull ContainerWorkbench container) {
+        containers.remove(container);
     }
 
     @Override
@@ -45,7 +46,9 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             if (!world.isRemote) {
                 WorldServer worldServer = (WorldServer) world;
                 worldServer.getPlayerChunkMap().markBlockForUpdate(pos);
-            }
+                updateContainers();
+            } else
+                needsUpdate = true;
         }
     }
 
@@ -152,23 +155,18 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
 
     @Override
     public void update() {
-        boolean anyChange = false;
         if (needsClear) craft();
+        if (needsUpdate) updateContainers();
+    }
+
+    private void updateContainers() {
+        cleanContainers();
         for (var container : containers) {
             var tileContainer = (TileContainerWorkbench) container;
-            if (container == null) {
-                containers.remove(null);
-                continue;
-            }
-
-            if (!hasMatrixChanged(tileContainer.getOldMatrix(), craftMatrix) &&
-                    !((InventoryWorkbench) container.craftMatrix).needsUpdate()) continue;
-
+            if (!hasMatrixChanged(tileContainer.getOldMatrix(), craftMatrix)) continue;
             tileContainer.updateResult();
-            anyChange = true;
-            ((InventoryWorkbench) container.craftMatrix).setNoUpdate();
         }
-        if (anyChange) markDirty();
+        needsUpdate = false;
     }
 
     public void craft() {
@@ -184,6 +182,20 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             }
 
             ((TileContainerWorkbench) container).clearResult();
+        }
+        needsClear = false;
+    }
+
+    public void cleanContainers() {
+        for (var container : containers) {
+            if (container == null) {
+                containers.remove(null);
+                continue;
+            }
+            TileContainerWorkbench tileContainer = (TileContainerWorkbench) container;
+            if (tileContainer.getPlayer() == null || tileContainer.getPlayer().isDead) {
+                containers.remove(tileContainer);
+            }
         }
     }
 }

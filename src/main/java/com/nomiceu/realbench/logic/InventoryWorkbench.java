@@ -2,7 +2,6 @@ package com.nomiceu.realbench.logic;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.util.RecipeItemHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.ItemStackHelper;
@@ -15,8 +14,6 @@ public class InventoryWorkbench extends InventoryCrafting {
     private final ContainerWorkbench container;
     private final TileEntityWorkbench tile;
     private final int width, height;
-
-    private boolean needsUpdate = true;
 
     public InventoryWorkbench(ContainerWorkbench container, int width, int height) {
         super(container, width, height);
@@ -55,11 +52,6 @@ public class InventoryWorkbench extends InventoryCrafting {
     }
 
     @Override
-    public void openInventory(@NotNull EntityPlayer player) {
-        needsUpdate = true;
-    }
-
-    @Override
     public @NotNull ItemStack removeStackFromSlot(int index) {
         return ItemStackHelper.getAndRemove(tile.craftMatrix, index);
     }
@@ -67,7 +59,6 @@ public class InventoryWorkbench extends InventoryCrafting {
     @Override
     public void markDirty() {
         tile.markDirty();
-        //tile.getWorld().markBlockRangeForRenderUpdate(tile.getPos(), tile.getPos());
     }
 
     @Override
@@ -105,13 +96,5 @@ public class InventoryWorkbench extends InventoryCrafting {
     public void clear() {
         tile.craftMatrix.clear();
         markDirty();
-    }
-
-    public boolean needsUpdate() {
-        return needsUpdate;
-    }
-
-    public void setNoUpdate() {
-        needsUpdate = false;
     }
 }

@@ -50,6 +50,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     @Inject(method = "onContainerClosed(Lnet/minecraft/entity/player/EntityPlayer;)V", at = @At("HEAD"), cancellable = true)
     public void onContainerClosed(EntityPlayer player, CallbackInfo ci) {
         super.onContainerClosed(player);
+        tile.removeContainer((ContainerWorkbench) (Object) this);
         ci.cancel();
     }
 
@@ -84,6 +85,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     @Unique
     public void clearResult() {
         craftResult.clear();
+        oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
         ((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, ItemStack.EMPTY));
     }
 
@@ -91,5 +93,23 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     @Unique
     public void addSlot(Slot slot) {
         addSlotToContainer(slot);
+    }
+
+    @Override
+    @Unique
+    public EntityPlayer getPlayer() {
+        return player;
+    }
+
+    /**
+     * This is technically not needed, but ensures that the containers list does not have duplicates.
+     */
+    @SuppressWarnings("EqualsBetweenInconvertibleTypes")
+    @Override
+    @Unique
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ContainerWorkbench container)) return false;
+        if (player == null || ((TileContainerWorkbench) container).getPlayer() == null) return super.equals(obj);
+        return player.getUniqueID() == ((TileContainerWorkbench) container).getPlayer().getUniqueID();
     }
 }
