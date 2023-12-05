@@ -38,7 +38,8 @@ The light calculation in order to render items based on the correct lighting env
 This mod very carefully synchronizes the result between different clients with the same Crafting Table open.
 
 The Tile Entity stores a list of the items in the crafting matrix. Each player container of the workbench stores the current matrix for them, which is what the result is based on. 
-Each tick, each container is checked to see if the matrix has changed for them, and if it has, the recipe result is updated. 
+Each tick, if the tile has been marked dirty, each container is checked to see if the matrix has changed for them, and if it has, the recipe result is updated. 
+Whenever a player exits the crafting bench, that container is removed from the list. (For some reason, MC creates a new container each time the player enters the inventory)
 This has very high performance, especially with Fast Workbench or Universal Tweaks' Crafting Cache Feature.
 
 The result is also calculated each time the player enters the Crafting Table.
