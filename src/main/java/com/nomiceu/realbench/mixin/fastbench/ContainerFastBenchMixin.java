@@ -1,5 +1,6 @@
 package com.nomiceu.realbench.mixin.fastbench;
 
+import com.nomiceu.realbench.logic.TileContainerWorkbench;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
@@ -28,6 +29,7 @@ public class ContainerFastBenchMixin extends ContainerWorkbench {
     // Must be method reference + remap as this is originally mc function
     @Inject(method = "onContainerClosed(Lnet/minecraft/entity/player/EntityPlayer;)V", at = @At("HEAD"), remap = true, cancellable = true)
     public void onContainerClosed(EntityPlayer player, CallbackInfo ci) {
+        if (((TileContainerWorkbench) this).getTile() == null) return; // Don't cancel if tile is null
         super.onContainerClosed(player);
         ci.cancel();
     }

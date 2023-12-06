@@ -16,7 +16,7 @@ public class SlotCraftingResult extends SlotCrafting {
     public @NotNull ItemStack onTake(@NotNull EntityPlayer player, @NotNull ItemStack stack) {
         var value = super.onTake(player, stack);
         var tile = ((TileContainerWorkbench) container).getTile();
-        tile.craft();
+        if (tile != null) tile.craft();
         return value;
     }
 }

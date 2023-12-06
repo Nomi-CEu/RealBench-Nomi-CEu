@@ -47,8 +47,6 @@ public class ContainerWorkbenchLogic {
         if (foundTile instanceof TileEntityWorkbench workbench) {
             return workbench.addContainer(container);
         }
-        var tile = new TileEntityWorkbench().addContainer(container);
-        world.setTileEntity(pos, tile);
-        return tile;
+        return null;
     }
 }

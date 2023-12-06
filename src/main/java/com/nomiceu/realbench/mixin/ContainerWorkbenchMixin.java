@@ -10,7 +10,7 @@ import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,6 +32,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
     @Shadow @Final
     private EntityPlayer player;
     @Unique
+    @Nullable
     public TileEntityWorkbench tile;
     @Unique
     public List<ItemStack> oldMatrix;
@@ -49,6 +50,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
 
     @Inject(method = "onContainerClosed(Lnet/minecraft/entity/player/EntityPlayer;)V", at = @At("HEAD"), cancellable = true)
     public void onContainerClosed(EntityPlayer player, CallbackInfo ci) {
+        if (tile == null) return; // Don't cancel if tile is null
         super.onContainerClosed(player);
         tile.removeContainer((ContainerWorkbench) (Object) this);
         ci.cancel();
@@ -56,7 +58,7 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
 
     @Unique
     @Override
-    @NotNull
+    @Nullable
     public TileEntityWorkbench getTile() {
         return tile;
     }

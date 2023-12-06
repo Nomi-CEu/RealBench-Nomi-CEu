@@ -27,6 +27,6 @@ public class SlotCraftingSucksMixin {
     @Inject(method = "onTake(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;", at = @At("RETURN"), remap = true)
     public void onTake(EntityPlayer player, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         var tile = ((TileContainerWorkbench) container).getTile();
-        tile.craft();
+        if (tile != null) tile.craft();
     }
 }
