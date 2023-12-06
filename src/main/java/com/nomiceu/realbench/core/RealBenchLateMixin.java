@@ -13,7 +13,7 @@ import java.util.Objects;
 public class RealBenchLateMixin implements ILateMixinLoader {
     @Override
     public List<String> getMixinConfigs() {
-        return ImmutableList.of("mixins.realbench.fastbench.json");
+        return ImmutableList.of("mixins.realbench.fastbench.json", "mixins.realbench.avaritia.json");
     }
 
     @Override

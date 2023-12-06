@@ -1,9 +1,9 @@
-package com.nomiceu.realbench.mixin;
+package com.nomiceu.realbench.mixin.avaritia;
 
 import com.nomiceu.realbench.logic.BlockWorkbenchLogic;
 import com.nomiceu.realbench.logic.TileEntityWorkbench;
+import morph.avaritia.block.BlockCompressedCraftingTable;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockWorkbench;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(value = BlockWorkbench.class)
-public class BlockWorkbenchMixin extends Block implements ITileEntityProvider {
+@Mixin(value = BlockCompressedCraftingTable.class, remap = false)
+public class BlockCompressedWorkbenchMixin extends Block implements ITileEntityProvider {
     /**
      * Mandatory default ignore constructor
      */
-    public BlockWorkbenchMixin(Material blockMaterialIn, MapColor blockMapColorIn) {
+    public BlockCompressedWorkbenchMixin(Material blockMaterialIn, MapColor blockMapColorIn) {
         super(blockMaterialIn, blockMapColorIn);
     }
 
