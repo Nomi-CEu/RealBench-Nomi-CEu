@@ -11,6 +11,9 @@
     <a href="https://github.com/Nomi-CEu/RealBench-Nomi-CEu/releases"><img src="https://img.shields.io/github/downloads/Nomi-CEu/RealBench-Nomi-CEu/total?sort=semver&logo=github&label=&style=for-the-badge&color=2d2d2d&labelColor=545454&logoColor=FFFFFF" alt="GitHub"></a>
 </h1>
 
+## Dependencies:
+- Requires [MixinBooter](https://www.curseforge.com/minecraft/mc-mods/mixin-booter).
+
 ## Features:
 - All features of RealBench, including:
   - Items stay in the Crafting Table
@@ -28,7 +31,6 @@
 - Compatability with [FastWorkbench](https://www.curseforge.com/minecraft/mc-mods/fastworkbench), works well with [Universal Tweaks](https://www.curseforge.com/minecraft/mc-mods/universal-tweaks)
 - Items in the Crafting Table in worlds with RealBench will transfer correctly
 - Tested heavily in standalone environments, environments with FastBench or Universal Tweaks, and in modpack environments ([Nomi-CEu](https://www.curseforge.com/minecraft/modpacks/nomi-ceu) and [Nomifactory](https://www.curseforge.com/minecraft/modpacks/nomifactory))
-- No Dependencies!
 
 ## Internal Workings:
 ### Light Calculation
