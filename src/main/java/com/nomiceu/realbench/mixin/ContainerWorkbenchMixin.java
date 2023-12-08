@@ -2,11 +2,9 @@ package com.nomiceu.realbench.mixin;
 
 import com.nomiceu.realbench.logic.*;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -81,14 +79,6 @@ public abstract class ContainerWorkbenchMixin extends Container implements TileC
         for (int i = 0; i < matrix.size(); i++) {
             oldMatrix.set(i, matrix.get(i).copy());
         }
-    }
-
-    @Override
-    @Unique
-    public void clearResult() {
-        craftResult.clear();
-        oldMatrix = NonNullList.withSize(9, ItemStack.EMPTY);
-        ((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, ItemStack.EMPTY));
     }
 
     @Override

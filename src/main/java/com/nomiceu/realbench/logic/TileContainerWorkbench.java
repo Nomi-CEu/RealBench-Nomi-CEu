@@ -15,8 +15,6 @@ public interface TileContainerWorkbench {
 
     void updateOldMatrix(List<ItemStack> matrix);
 
-    void clearResult();
-
     void addSlot(Slot slot);
 
     EntityPlayer getPlayer();

@@ -181,7 +181,7 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
                 continue;
             }
 
-            ((TileContainerWorkbench) container).clearResult();
+            ((TileContainerWorkbench) container).updateResult();
         }
         needsClear = false;
     }
