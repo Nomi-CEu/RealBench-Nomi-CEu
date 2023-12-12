@@ -60,6 +60,7 @@ public class InventoryWorkbench extends InventoryCrafting {
     @Override
     public @NotNull ItemStack removeStackFromSlot(int index) {
         if (tile == null) return super.removeStackFromSlot(index);
+        markDirty();
         return ItemStackHelper.getAndRemove(tile.craftMatrix, index);
     }
 

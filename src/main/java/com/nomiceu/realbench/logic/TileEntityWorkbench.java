@@ -170,9 +170,9 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
     }
 
     public void craft() {
-        markDirty();
         if (world.isRemote) {
             needsClear = true;
+            markDirty();
             return;
         }
         for (var container : containers) {
@@ -184,6 +184,7 @@ public class TileEntityWorkbench extends TileEntity implements ITickable {
             ((TileContainerWorkbench) container).updateResult();
         }
         needsClear = false;
+        markDirty();
     }
 
     public void cleanContainers() {
