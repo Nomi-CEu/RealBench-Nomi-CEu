@@ -74,8 +74,7 @@ public class InventoryWorkbench extends InventoryCrafting {
     }
 
     @Override
-    public void setInventorySlotContents(int index, @Nullable ItemStack stack) {
-        if (stack == null) stack = ItemStack.EMPTY;
+    public void setInventorySlotContents(int index, @NotNull ItemStack stack) {
         if (tile == null) {
             super.setInventorySlotContents(index, stack);
             return;
